@@ -1,18 +1,21 @@
-require("dotenv").config();
-const conf = require("./config/app");
-const helmet = require("helmet");
-const express = require("express");
-const mongoose = require("mongoose");
-const { errors } = require("celebrate");
-const { requestLogger, errorLogger } = require("./middlewares/logger");
-const errorsValidator = require("./middlewares/handleErrors");
-const cors = require("./middlewares/cors");
+require('dotenv').config();
+const conf = require('./config/app');
+const helmet = require('helmet');
+const express = require('express');
+const mongoose = require('mongoose');
+const { errors } = require('celebrate');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+const errorsValidator = require('./middlewares/handleErrors');
+const cors = require('./middlewares/cors');
+const rateLimitMiddleware = require('./middlewares/rateLimiter');
 
-const appRouter = require("./routes/index");
+const appRouter = require('./routes/index');
 
 const app = express();
 
 app.use(cors); // подключаем проверку CORS как мидлвэр
+
+app.use(rateLimitMiddleware);
 
 app.use(express.json()); // подключаем парсер json как мидлвэр
 

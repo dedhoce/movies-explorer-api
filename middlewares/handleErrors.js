@@ -1,43 +1,23 @@
-const mongoose = require("mongoose");
 const {
-  AlienMovie,
-  NeedAuthorized,
-  NocorrectlyPswdOrEmail
-} = require("../utils/ErrorClass");
-
-const {
-  HTTP_STATUS_BAD_REQUEST, // 400
-  HTTP_STATUS_UNAUTHORIZED, // 401
-  HTTP_STATUS_NOT_FOUND, // 404
   HTTP_STATUS_CONFLICT, // 409
   HTTP_STATUS_INTERNAL_SERVER_ERROR // 500
-} = require("../utils/constantsStatusCode");
+} = require('../utils/constantsStatusCode');
 
-const serverError = (res) => {
-  return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Server Error" });
-};
+const {
+  ERROR_MESSAGE_USER_WITH_THIS_EMAIL_EXISTS,
+  ERROR_MESSAGE_SERVER_ERROR
+} = require('../utils/errorMessage');
 
-module.exports = (err, req, res, next) => {
-  if (err instanceof mongoose.Error.CastError) {
-    return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: "Invalid ID" });
-  }
-  if (err instanceof mongoose.Error.ValidationError) {
-    return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: err.message });
-  }
-  if (err instanceof mongoose.Error.DocumentNotFoundError) {
-    return res.status(HTTP_STATUS_NOT_FOUND).send({ message: "Document not found" });
-  }
-  if (err instanceof NeedAuthorized) {
-    return res.status(HTTP_STATUS_UNAUTHORIZED).send({ message: err.message });
-  }
-  if (err instanceof NocorrectlyPswdOrEmail) {
-    return res.status(HTTP_STATUS_UNAUTHORIZED).send({ message: err.message });
-  }
-  if (err instanceof AlienMovie) {
-    return res.status(err.statusCode).send({ message: "Можно удалять только свои видео!" });
-  }
+module.exports = (err, req, res) => {
   if (err.code === 11000) {
-    return res.status(HTTP_STATUS_CONFLICT).send({ message: "Пользователь с данным email уже существует" });
+    return res
+      .status(HTTP_STATUS_CONFLICT)
+      .send({ message: ERROR_MESSAGE_USER_WITH_THIS_EMAIL_EXISTS });
   }
-  serverError(res);
+  const statusCode = err.statusCode || HTTP_STATUS_INTERNAL_SERVER_ERROR;
+  const message = statusCode === HTTP_STATUS_INTERNAL_SERVER_ERROR
+    ? ERROR_MESSAGE_SERVER_ERROR
+    : err.message;
+
+  return res.status(statusCode).send({ message });
 };

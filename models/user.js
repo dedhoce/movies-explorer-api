@@ -1,7 +1,11 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-const { NocorrectlyPswdOrEmail } = require("../utils/ErrorClass");
+const NocorrectlyPswdOrEmail = require('../utils/errorClass/NocorrectlyPswdOrEmail');
+
+const {
+  ERROR_MESSAGE_NOCORRECT_EMAIL_OR_PSWD
+} = require('../utils/errorMessage');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -9,7 +13,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      match: /[a-z0-9\.\-]+@[a-z0-9]+\.[a-z]{1,}/g
+      match: /[a-z0-9.-]+@[a-z0-9]+\.[a-z]{1,}/g
     },
     password: {
       type: String,
@@ -28,23 +32,24 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-UserSchema.statics.findUserByCredentials = function (email, password) {
+UserSchema.statics.findUserByCredentials = function findUserByCredentials(email, password) {
   return this.findOne({ email })
-    .select("+password")
+    .select('+password')
     .then((user) => {
       if (!user) {
-        throw new NocorrectlyPswdOrEmail("Неправильные почта или пароль");
+        throw new NocorrectlyPswdOrEmail(ERROR_MESSAGE_NOCORRECT_EMAIL_OR_PSWD);
       }
 
-      return bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new NocorrectlyPswdOrEmail("Неправильные почта или пароль");
-          }
+      return bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          throw new NocorrectlyPswdOrEmail(
+            ERROR_MESSAGE_NOCORRECT_EMAIL_OR_PSWD
+          );
+        }
 
-          return user;
-        });
+        return user;
+      });
     });
 };
 
-module.exports = mongoose.model("user", UserSchema);
+module.exports = mongoose.model('user', UserSchema);
