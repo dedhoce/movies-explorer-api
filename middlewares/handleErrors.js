@@ -8,7 +8,7 @@ const {
   ERROR_MESSAGE_SERVER_ERROR
 } = require('../utils/errorMessage');
 
-module.exports = (err, req, res) => {
+module.exports = (err, req, res, next) => {
   if (err.code === 11000) {
     return res
       .status(HTTP_STATUS_CONFLICT)

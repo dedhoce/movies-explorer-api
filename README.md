@@ -7,6 +7,6 @@
 
 ## Ссылки на проект
 
-IP 158.160.97.139
+IP 51.250.93.148
 
-Backend https://api.movies-exp.amelitskov.nomoredomainsmonster.ru
+Backend https://api.movies-exp.amelitskov.nomoredomainswork.ru
